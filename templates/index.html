@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" x-data="aiApp()" :class="theme" class="transition-all duration-700">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Multimodal Studio</title>
+
+  <!-- Tailwind + Alpine -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background-size: 400% 400%;
+      animation: gradientFlow 15s ease infinite;
+      color: white;
+      min-height: 100vh;
+    }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .glass {
+      backdrop-filter: blur(25px);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 25px rgba(147, 51, 234, 0.3);
+    }
+    .light {
+      background: linear-gradient(135deg, #fdfbfb, #ebedee);
+      color: #111;
+    }
+    .light .glass {
+      background: rgba(255, 255, 255, 0.65);
+      color: #111;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+    }
+    .gradient-text {
+      background: linear-gradient(to right, #9333ea, #ec4899, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center p-6 sm:p-10">
+
+  <!-- Main container -->
+  <div class="w-full max-w-3xl glass rounded-3xl p-8 sm:p-10 text-center relative">
+
+    <!-- Theme Toggle -->
+    <div class="absolute top-4 right-4">
+      <button @click="toggleTheme()" class="text-lg px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold shadow-md hover:opacity-80 transition">
+        <template x-if="theme === 'dark'">☀️ Light</template>
+        <template x-if="theme === 'light'">🌙 Dark</template>
+      </button>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 gradient-text">🚀 AI Multimodal Studio</h1>
+    <p class="text-gray-300 mb-8">Generate text, images, and videos with the power of AI.</p>
+
+    <!-- Tabs -->
+    <div class="flex justify-center space-x-3 mb-6">
+      <button @click="tab='text'" :class="tab==='text' ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600'" class="px-5 py-2 rounded-full font-medium transition">🧠 Text</button>
+      <button @click="tab='image'" :class="tab==='image' ? 'bg-pink-600 text-white' : 'bg-gray-700 hover:bg-gray-600'" class="px-5 py-2 rounded-full font-medium transition">🎨 Image</button>
+      <button @click="tab='video'" :class="tab==='video' ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'" class="px-5 py-2 rounded-full font-medium transition">🎬 Video</button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="relative flex flex-col sm:flex-row gap-3 justify-center mb-8">
+      <input x-model="prompt" type="text" placeholder="Type your idea..." class="w-full sm:w-3/4 px-6 py-3 rounded-full border-2 border-transparent focus:ring-2 focus:ring-purple-500 bg-gray-900 text-white placeholder-gray-400 focus:outline-none" />
+      <button @click="generate()" class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 rounded-full text-white font-semibold hover:scale-105 transition">⚡ Generate</button>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="flex flex-wrap justify-center gap-3 mb-8">
+      <span @click="prompt='A futuristic neon city at night'" class="cursor-pointer bg-gray-800 px-4 py-2 rounded-full hover:bg-purple-600 transition">🌆 Cyberpunk City</span>
+      <span @click="prompt='A cinematic astronaut portrait'" class="cursor-pointer bg-gray-800 px-4 py-2 rounded-full hover:bg-purple-600 transition">👩‍🚀 Astronaut</span>
+      <span @click="prompt='A fantasy dragon flying through clouds'" class="cursor-pointer bg-gray-800 px-4 py-2 rounded-full hover:bg-purple-600 transition">🐉 Dragon</span>
+      <span @click="prompt='A futuristic AI dashboard concept'" class="cursor-pointer bg-gray-800 px-4 py-2 rounded-full hover:bg-purple-600 transition">🤖 Futuristic UI</span>
+    </div>
+
+    <!-- Output Section -->
+    <div class="space-y-8 text-center">
+      <!-- Loading -->
+      <div x-show="loading" class="text-gray-400 italic animate-pulse">⏳ Generating your AI magic...</div>
+
+      <!-- TEXT -->
+      <div x-show="tab==='text' && text" x-transition>
+        <h3 class="text-2xl font-semibold text-purple-400 mb-3">🧠 Generated Text</h3>
+        <div class="relative glass p-4 rounded-2xl text-left text-gray-200">
+          <pre class="whitespace-pre-line break-words text-sm sm:text-base" x-text="text"></pre>
+          <div class="flex gap-3 mt-3 justify-end">
+            <button @click="copyText()" class="px-4 py-2 rounded-md bg-purple-600 text-white text-sm hover:bg-purple-700">📋 Copy</button>
+            <button @click="downloadText()" class="px-4 py-2 rounded-md bg-pink-600 text-white text-sm hover:bg-pink-700">⬇️ Download Text</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMAGE -->
+      <div x-show="tab==='image' && image" x-transition>
+        <h3 class="text-2xl font-semibold text-pink-400 mb-3">🎨 Generated Image</h3>
+        <img :src="image" class="rounded-2xl shadow-lg mx-auto w-full sm:w-2/3 border border-gray-700" />
+        <button @click="downloadImage()" class="mt-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-5 py-2 rounded-full font-medium hover:scale-105 transition">⬇️ Download JPG</button>
+      </div>
+
+      <!-- VIDEO -->
+      <div x-show="tab==='video' && video" x-transition>
+        <h3 class="text-2xl font-semibold text-blue-400 mb-3">🎬 Generated Video</h3>
+        <video controls autoplay loop class="rounded-2xl mx-auto w-full sm:w-2/3 border border-gray-700">
+          <source :src="video" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="mt-10 text-sm text-gray-400">© 2025 Multimodal Studio • Built with ❤️ using FastAPI + Tailwind.</p>
+  </div>
+
+  <!-- Alpine Logic -->
+  <script>
+    function aiApp() {
+      return {
+        tab: 'text',
+        prompt: '',
+        text: '',
+        image: '',
+        video: '',
+        loading: false,
+        theme: localStorage.getItem('theme') || 'dark',
+
+        toggleTheme() {
+          this.theme = this.theme === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('theme', this.theme);
+        },
+
+        async generate() {
+          if (!this.prompt) return alert("Please enter your idea!");
+          this.loading = true;
+          this.text = ''; this.image = ''; this.video = '';
+
+          if (this.tab === 'text') {
+            const res = await fetch('/text/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prompt: this.prompt })
+            });
+            const data = await res.json();
+            this.text = data.response;
+          } else if (this.tab === 'image') {
+            const res = await fetch('/image/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prompt: this.prompt })
+            });
+            const blob = await res.blob();
+            // Convert to JPG format (force extension)
+            const jpgBlob = blob.slice(0, blob.size, "image/jpeg");
+            this.image = URL.createObjectURL(jpgBlob);
+          } else if (this.tab === 'video') {
+            this.video = "https://samplelib.com/lib/preview/mp4/sample-5s.mp4";
+          }
+
+          this.loading = false;
+        },
+
+        copyText() {
+          navigator.clipboard.writeText(this.text);
+          alert("✅ Text copied to clipboard!");
+        },
+
+        downloadText() {
+          const blob = new Blob([this.text], { type: "text/plain" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "generated_text.txt";
+          a.click();
+        },
+
+        downloadImage() {
+          const a = document.createElement("a");
+          a.href = this.image;
+          a.download = "generated_image.jpg";
+          a.click();
+        }
+      };
+    }
+  </script>
+</body>
+</html>

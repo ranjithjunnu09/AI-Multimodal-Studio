@@ -1,0 +1,47 @@
+body {
+  background: radial-gradient(circle at top left, #1a1a1a, #000);
+}
+
+.suggestion {
+  background: #1f1f1f;
+  color: #ccc;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.suggestion:hover {
+  background: #9333ea;
+  color: white;
+}
+
+.loading {
+  color: #aaa;
+  font-style: italic;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.result-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  line-height: 1.7;
+}
+
+.result-img, .result-video {
+  width: 100%;
+  border-radius: 15px;
+  box-shadow: 0 0 25px rgba(127, 25, 222, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.result-img:hover, .result-video:hover {
+  transform: scale(1.03);
+}

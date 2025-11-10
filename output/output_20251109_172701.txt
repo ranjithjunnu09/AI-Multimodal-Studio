@@ -1,0 +1,292 @@
+Python is an object-oriented programming (OOP) language, meaning it allows you to structure your programs using objects and classes. OOP aims to implement real-world entities like inheritance, polymorphism, encapsulation, etc., in the programming.
+
+Here are the core OOP concepts in Python, along with explanations and examples:
+
+---
+
+### 1. Class
+
+A **class** is a blueprint or a template for creating objects. It defines the attributes (data/variables) and methods (functions) that all objects of that class will have.
+
+```python
+# Define a Class
+class Dog:
+    # Class variable (shared by all instances)
+    species = "Canis familiaris"
+
+    # The constructor method (initializes objects)
+    def __init__(self, name, breed):
+        # Instance variables (unique to each instance)
+        self.name = name
+        self.breed = breed
+        self.age = 0 # Default age
+
+    # Instance method
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+    # Another instance method
+    def set_age(self, years):
+        self.age = years
+        print(f"{self.name}'s age is now {self.age} years.")
+```
+
+---
+
+### 2. Object (Instance)
+
+An **object** is an instance of a class. When a class is defined, no memory is allocated until an object of that class is created. Each object has its own unique set of attributes.
+
+```python
+# Create objects (instances) of the Dog class
+my_dog = Dog("Buddy", "Golden Retriever")
+your_dog = Dog("Lucy", "Labrador")
+
+# Access attributes of objects
+print(f"{my_dog.name} is a {my_dog.breed}.")  # Output: Buddy is a Golden Retriever.
+print(f"{your_dog.name} is a {your_dog.breed}.") # Output: Lucy is a Labrador.
+
+# Call methods on objects
+print(my_dog.bark())  # Output: Buddy says Woof!
+my_dog.set_age(5)     # Output: Buddy's age is now 5 years.
+
+# Access class variable (shared)
+print(f"My dog's species: {my_dog.species}")
+print(f"Your dog's species: {your_dog.species}")
+```
+
+---
+
+### 3. Encapsulation
+
+**Encapsulation** is the bundling of data (attributes) and methods (functions) that operate on the data into a single unit (the class). It also involves restricting direct access to some of an object's components, which means controlling the data and preventing external code from directly modifying it.
+
+Python doesn't have strict "private" keywords like `private` in Java/C++. Instead, it uses conventions:
+
+*   **Public members:** Accessible from anywhere. (e.g., `self.name`)
+*   **Protected members:** Indicated by a single leading underscore (`_variable`). This is a convention to suggest to other programmers that the variable or method should not be accessed directly from outside the class, but it *is* still accessible.
+*   **Private members:** Indicated by a double leading underscore (`__variable`). This triggers "name mangling," making it harder (but not impossible) to access from outside the class.
+
+```python
+class BankAccount:
+    def __init__(self, account_holder, initial_balance):
+        self.account_holder = account_holder
+        self.__balance = initial_balance  # Private attribute using name mangling
+
+    def deposit(self, amount):
+        if amount > 0:
+            self.__balance += amount
+            print(f"Deposited {amount}. New balance: {self.__balance}")
+        else:
+            print("Deposit amount must be positive.")
+
+    def withdraw(self, amount):
+        if amount > 0 and amount <= self.__balance:
+            self.__balance -= amount
+            print(f"Withdrew {amount}. New balance: {self.__balance}")
+        else:
+            print("Invalid withdrawal amount or insufficient balance.")
+
+    # Using a property to provide controlled access to the private balance
+    @property
+    def balance(self):
+        return self.__balance
+
+# Create an account
+account = BankAccount("Alice Smith", 1000)
+
+# Access public attribute
+print(f"Account holder: {account.account_holder}")
+
+# Try to directly access the "private" balance (will fail or be mangled)
+# print(account.__balance) # This would raise an AttributeError
+# print(account._BankAccount__balance) # This would work, showing it's not truly private
+
+# Access balance through the controlled method (property)
+print(f"Current balance: {account.balance}") # Output: Current balance: 1000
+
+# Use methods to modify balance
+account.deposit(500)   # Output: Deposited 500. New balance: 1500
+account.withdraw(200)  # Output: Withdrew 200. New balance: 1300
+account.withdraw(2000) # Output: Invalid withdrawal amount or insufficient balance.
+```
+
+---
+
+### 4. Inheritance
+
+**Inheritance** is a mechanism where a new class (derived or child class) can inherit properties and behaviors from an existing class (base or parent class). This promotes code reusability and establishes an "is-a" relationship (e.g., A Dog *is a* type of Animal).
+
+```python
+# Base class (Parent Class)
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        raise NotImplementedError("Subclass must implement abstract method")
+
+    def move(self):
+        return f"{self.name} moves around."
+
+# Derived class (Child Class) - inherits from Animal
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name) # Call the constructor of the parent class
+        self.breed = breed
+
+    # Override the speak method
+    def speak(self):
+        return f"{self.name} barks!"
+
+# Another Derived class
+class Cat(Animal):
+    def __init__(self, name, fur_color):
+        super().__init__(name)
+        self.fur_color = fur_color
+
+    # Override the speak method
+    def speak(self):
+        return f"{self.name} meows!"
+
+# Create objects
+my_animal = Animal("Generic Animal") # This would raise NotImplementedError if speak() called without try/except
+my_dog = Dog("Buddy", "Golden Retriever")
+my_cat = Cat("Whiskers", "Tabby")
+
+# Access inherited and unique attributes/methods
+print(f"{my_dog.name} is a {my_dog.breed}.")  # Output: Buddy is a Golden Retriever.
+print(my_dog.speak())                      # Output: Buddy barks!
+print(my_dog.move())                       # Output: Buddy moves around. (inherited)
+
+print(f"{my_cat.name} has {my_cat.fur_color} fur.")
+print(my_cat.speak())                      # Output: Whiskers meows!
+print(my_cat.move())                       # Output: Whiskers moves around.
+```
+
+---
+
+### 5. Polymorphism
+
+**Polymorphism** means "many forms." In OOP, it refers to the ability of different objects to respond to the same method call in their own specific ways. It allows you to write generic code that can work with objects of different types as long as they share a common interface (i.e., have the same method names).
+
+Python achieves polymorphism mainly through:
+
+1.  **Method Overriding:** A subclass provides a specific implementation for a method that is already defined in its superclass. (Seen in the `speak` method in the inheritance example).
+2.  **Duck Typing:** If an object behaves like a "duck" (i.e., has the necessary methods), then it's treated as a "duck," regardless of its actual class.
+
+```python
+# (Using the Animal, Dog, Cat classes from the Inheritance example)
+
+def animal_sound(animal):
+    # This function doesn't care about the specific type of animal,
+    # just that it has a 'speak' method.
+    print(animal.speak())
+
+# Create various animal objects
+dog = Dog("Rex", "German Shepherd")
+cat = Cat("Garfield", "Orange")
+# If Animal had a default speak, it could be included too:
+# generic_animal = Animal("Unknown") 
+
+# Call the generic function with different object types
+animal_sound(dog)  # Output: Rex barks!
+animal_sound(cat)  # Output: Garfield meows!
+
+# Example with another type (Duck Typing)
+class Duck:
+    def speak(self):
+        return "Quack!"
+
+class Person:
+    def speak(self):
+        return "Hello there!"
+
+my_duck = Duck()
+human = Person()
+
+animal_sound(my_duck) # Output: Quack!
+animal_sound(human)   # Output: Hello there!
+```
+
+---
+
+### 6. Abstraction
+
+**Abstraction** means showing only essential features of an object and hiding the complex implementation details. It focuses on "what" an object does rather than "how" it does it. In Python, abstraction is often achieved using **abstract classes** and **abstract methods** from the `abc` (Abstract Base Classes) module.
+
+An abstract class cannot be instantiated directly, and an abstract method must be implemented by any concrete (non-abstract) subclass.
+
+```python
+from abc import ABC, abstractmethod
+
+# Abstract Base Class
+class Shape(ABC):
+    @abstractmethod
+    def area(self):
+        pass
+
+    @abstractmethod
+    def perimeter(self):
+        pass
+
+    def description(self):
+        return "This is a generic shape."
+
+# Concrete class inheriting from Shape
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+
+    def area(self):
+        return 3.14159 * self.radius ** 2
+
+    def perimeter(self):
+        return 2 * 3.14159 * self.radius
+
+# Another Concrete class inheriting from Shape
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+    def perimeter(self):
+        return 2 * (self.width + self.height)
+
+# You cannot instantiate an abstract class
+# my_shape = Shape() # This would raise a TypeError
+
+circle = Circle(5)
+rectangle = Rectangle(4, 6)
+
+print(f"Circle area: {circle.area()}")          # Output: Circle area: 78.53975
+print(f"Circle perimeter: {circle.perimeter()}") # Output: Circle perimeter: 31.4159
+print(circle.description())                     # Output: This is a generic shape.
+
+print(f"Rectangle area: {rectangle.area()}")    # Output: Rectangle area: 24
+print(f"Rectangle perimeter: {rectangle.perimeter()}") # Output: Rectangle perimeter: 20
+```
+
+---
+
+### Additional Important Concepts in Python OOP:
+
+*   **`self`**: The first parameter in any instance method. It refers to the instance of the class itself. Python automatically passes the instance as `self` when you call a method.
+*   **`__init__`**: The constructor method. It's called automatically when a new object is created from the class, allowing you to initialize the object's attributes.
+*   **`__str__` and `__repr__`**: Special methods for string representation.
+    *   `__str__` is for creating a user-friendly string representation of an object (e.g., when `print()` is called).
+    *   `__repr__` is for creating an unambiguous string representation, typically for developers (e.g., for debugging).
+*   **Class Variables vs. Instance Variables**:
+    *   **Class variables** are shared by all instances of a class (e.g., `species` in the `Dog` class).
+    *   **Instance variables** are unique to each instance (e.g., `name`, `breed` in the `Dog` class).
+*   **Methods (Instance, Class, Static)**:
+    *   **Instance methods**: Operate on instance data, require `self` as the first argument.
+    *   **Class methods**: Operate on class data, decorated with `@classmethod`, receive `cls` (the class itself) as the first argument.
+    *   **Static methods**: Don't operate on instance or class data, decorated with `@staticmethod`, don't receive `self` or `cls`. They are essentially regular functions logically grouped within a class.
+
+---
+
+By understanding and applying these concepts, you can write more modular, reusable, and maintainable Python code.
